@@ -32,3 +32,38 @@ module.exports.editPosts = async (req, res) => {
   });
   res.status(200).json(updatePost);
 };
+
+//DELETE
+
+module.exports.deletePosts = async (req, res) => {
+  const post = await PostModel.findById(req.params.id);
+  if (!post) {
+    res.status(400).json({ message: "Ce post n'existe pas" });
+  }
+  await post.deleteOne();
+  res.status(200).json("Message delete id" + post);
+};
+
+module.exports.setLike = async (req, res) => {
+  try {
+    await PostModel.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { likers: req.body.userId } },
+      { new: true }
+    ).then((data) => res.status(200).send(data));
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
+
+module.exports.dropLike = async (req, res) => {
+  try {
+    await PostModel.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { likers: req.body.userId } },
+      { new: true }
+    ).then((data) => res.status(200).send(data));
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
